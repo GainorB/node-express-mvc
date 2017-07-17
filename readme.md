@@ -18,13 +18,13 @@ MVC is a software architecture that separates application logic from the rest of
 4. Create .gitignore (optional)
 5. Create .env (optional)
 6. **npm install** node modules, **--save flag**
-    1. npm install **express**
-    2. npm install **ejs**
-    3. npm install **body-parser**
-    4. npm install **bluebird**
-    5. npm install **pg-promise**
-    6. npm install **dotenv**
-    7. npm install **cors**
+    * npm install **express**
+    * npm install **ejs**
+    * npm install **body-parser**
+    * npm install **bluebird**
+    * npm install **pg-promise**
+    * npm install **dotenv**
+    * npm install **cors**
     * npm install **nodemon --save-dev**
     * npm install **morgan --save-dev**
 7. Edit scripts in **package.json**
