@@ -13,6 +13,7 @@ MVC is a software architecture that separates application logic from the rest of
 2. Create folder structure 
 
 ![MVC Folder Structure](./readme-assets/mvc.png)
+
 3. Create **server.js** (entry point)
 4. Create .gitignore (optional)
 5. Create .env (optional)
