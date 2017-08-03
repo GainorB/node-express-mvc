@@ -9,8 +9,8 @@ router.get('/', (req, res, next) => {
     Article.get()
         //.then(data => console.log(data))
         //.then(data => res.render('index', { data }))
-        .then(data => res.json({ title: 'Retreived all Articles', success: true, data }))
-        .catch(err => res.json({ err }));
+        .then(data => res.status(200).json({ title: 'Retreived all Articles', success: true, data }))
+        .catch(err => res.status(400).json({ err }));
 });
 
 // CREATE ARTICLE
@@ -19,8 +19,8 @@ router.post('/new', (req, res, next) => {
     const { title, content } = req.body;
 
     Article.create(title, content)
-        .then(res.json({ success: true, msg: 'Article Created' }))
-        .catch(err => res.json({ err }));
+        .then(res.status(201).json({ success: true, msg: 'Article Created' }))
+        .catch(err => res.status(400).json({ err }));
 });
 
 // UPDATE ARTICLE
@@ -31,8 +31,8 @@ router.put('/update/article/:id', (req, res, next) => {
     let id = req.params.id;
 
     Article.update(title, content, id)
-        .then(res.json({ success: true, msg: 'Article Updated' }))
-        .catch(err => res.json({ err }));
+        .then(res.status(200).json({ success: true, msg: 'Article Updated' }))
+        .catch(err => res.status(400).json({ err }));
 });
 
 // DELETE ARTICLE
@@ -40,8 +40,8 @@ router.delete('/delete/article/:id', (req, res, next) => {
     let id = req.params.id;
 
     Article.delete(id)
-        .then(res.json({ success: true, msg: 'Article Deleted' }))
-        .catch(err => res.json({ err }));
+        .then(res.status(200).json({ success: true, msg: 'Article Deleted' }))
+        .catch(err => res.status(400).json({ err }));
 });
 
 
