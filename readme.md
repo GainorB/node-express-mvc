@@ -41,15 +41,15 @@ Create an article:
 
 Update an article:
 
-`PUT /update/article/:id`
+`PUT /update/article/id`
 
 Delete an article:
 
-`DELETE /delete/article/:id'`
+`DELETE /delete/article/id`
 
 
 ## server.js
-Entry point: the main file that is ran to start the server
+Entry point, the main file that is ran to initialize the server
 
 ```javascript
 require('dotenv').config(); // SUPPORT .ENV FILES
