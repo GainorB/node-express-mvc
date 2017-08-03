@@ -1,5 +1,4 @@
-# MVC Design Patern
-### using Node.js with Express.js and a PostgreSQL database.
+# MVC Design Patern (using Node.js with Express.js and a PostgreSQL database)
 
 MVC is a software architecture that separates application logic from the rest of the user interface. It does this by separating the application into three parts: **the model**, **the view**, and **the controller**.
 
@@ -234,7 +233,7 @@ module.exports = Article;
 4. Run this command: psql -f ./config/db/schema.sql
 5. This command will create a PostgreSQL database along with the tables
 6. Setup environment variables:
-    * Create .env file in your project root with these two variables
+    * Create .env file in your project root with this variable
 ```
 DATABASE_URL=postgres://localhost:5432/mvc_app
 ```
