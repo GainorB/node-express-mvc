@@ -1,7 +1,7 @@
 # MVC Design Patern
-### for Node.js using Express.js and PostgreSQL database
+### using Node.js with Express.js and a PostgreSQL database.
 
-MVC is a software architecture that separates application logic from the rest of the user interface. It does this by separating the application into three parts: the model, the view, and the controller.
+MVC is a software architecture that separates application logic from the rest of the user interface. It does this by separating the application into three parts: **the model**, **the view**, and **the controller**.
 
 **The model** manages fundamental behaviors and data of the application. To name a few, it can respond to requests for information, or respond to instructions to change the state of its information. This could be a database, or any number of data structures or storage systems. In short, it is the data and data-management of the application.
 
@@ -15,8 +15,8 @@ MVC is a software architecture that separates application logic from the rest of
 ![MVC Folder Structure](./readme-assets/mvc.png)
 
 3. Create **server.js** (entry point)
-4. Create .gitignore (optional)
-5. Create .env (optional)
+4. Create **.gitignore**
+5. Create **.env**
 6. **npm install** node modules, **--save flag**
     * npm install **express**
     * npm install **ejs**
@@ -24,42 +24,52 @@ MVC is a software architecture that separates application logic from the rest of
     * npm install **bluebird**
     * npm install **pg-promise**
     * npm install **dotenv**
-    * npm install **cors**
     * npm install **nodemon --save-dev**
     * npm install **morgan --save-dev**
 7. Edit scripts in **package.json**
     * "npm start": "nodemon server"
 
-    
-### server.js
+### ENDPOINTS FOR A SIMPLE CRUD API
+
+Get articles:
+
+`GET /`
+
+Create an article:
+
+`POST /new`
+
+Update an article:
+
+`PUT /update/article/:id`
+
+Delete an article:
+
+`DELETE /delete/article/:id'`
+
+
+## server.js
 Entry point: the main file that is ran to start the server
 
 ```javascript
-// SUPPORT .ENV FILES
-require('dotenv').config();
-const cors = require('cors');
+require('dotenv').config(); // SUPPORT .ENV FILES
 const express = require('express'); // BRING IN EXPRESS
 const app = express(); // INITILIZE APP
 const path = require('path');
 const bodyParser = require('body-parser'); 
 
-// CORE MODULE, USED TO CREATE THE HTTP SERVER
-const http = require('http');
-// CREATE HTTP SERVER USING APP
-const server = http.createServer(app);
-// INITIALIZE DEFAULT PORT OR PORT FROM ENVIRONMENT VARIABLE
-const port = process.env.PORT || '3000';
-// TERMINAL LOGGER: SHOWS THE ROUTE AND STATUS CODE FOR EVERY REQUEST
-const logger = require('morgan');
+const http = require('http'); // CORE MODULE, USED TO CREATE THE HTTP SERVER
+const server = http.createServer(app); // CREATE HTTP SERVER USING APP
+const port = process.env.PORT || '3000'; // INITIALIZE DEFAULT PORT OR PORT FROM ENVIRONMENT VARIABLE
+
+const logger = require('morgan'); // TERMINAL LOGGER: SHOWS THE ROUTE AND STATUS CODE FOR EVERY REQUEST
 
 // VIEW ENGINE SETUP
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// USE MORGAN
-app.use(logger('dev'));
-// PARSE application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(logger('dev')); // USE MORGAN
+app.use(bodyParser.urlencoded({ extended: false })); // PARSE application/x-www-form-urlencoded
 app.use(bodyParser.json()); // PARSE application/json
 
 // USE STATIC FILES (CSS, JS, IMAGES)
@@ -73,8 +83,11 @@ app.all('/*', (req, res, next) => {
     next();
 });
 
+// SECURITY
+app.disable('x-powered-by');
+
 // CONTROLLERS
-app.use('/', require('./controllers/indexController'));
+app.use('/', require('./controllers/articlesController')); // ARTICLES CONTROLLER
 
 /*
 * START SERVER
@@ -89,13 +102,6 @@ server.listen(port);
 // LOG WHICH PORT THE SERVER IS RUNNING ON
 console.log('Server listening on port ' + port);
 
-// CATCH 404 AND FORWARD TO ERROR HANDLER
-app.use((req, res, next) => {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
-});
-
 // ERROR HANDLER
 app.use((err, req, res, next) => {
     console.log(err);
@@ -106,7 +112,7 @@ app.use((err, req, res, next) => {
 module.exports = app;
 ```
 
-### config/config.js
+## config/config.js
 Database configuration
 
 ```javascript
@@ -114,7 +120,12 @@ Database configuration
 const promise = require('bluebird');
 
 // OVERRIDING DEFAULT PROMISE LIBRARY
-const options = { promiseLib: promise };
+const options = { 
+    promiseLib: promise,
+    query: (e) => {
+        console.log(e.query);
+    }
+ };
 const pgp = require('pg-promise')(options);
 
 // SET UP THE CONNECTION STRING FOR THE DATABASE
@@ -124,7 +135,7 @@ const db = pgp(connectionString);
 module.exports = db;
 ```
 
-### controllers/indexController.js
+## controllers/articlesController.js
 Controller imports a model and then processes the returned data to render a view.
 
 ```javascript
@@ -132,11 +143,11 @@ const express = require('express');
 const router = express.Router();
 
 // REQUIRE MODEL
-const index = require('../models/index.js');
+const Article = require('../models/article.js');
 
 // GET ALL ARTICLES
 router.get('/', (req, res, next) => {
-    index.getAllArticles()
+    Article.get()
         //.then(data => console.log(data))
         //.then(data => res.render('index', { data }))
         .then(data => res.json({ title: 'Retreived all Articles', success: true, data }))
@@ -144,72 +155,90 @@ router.get('/', (req, res, next) => {
 });
 
 // CREATE ARTICLE
-router.post('/newArticle', (req, res, next) => {
+router.post('/new', (req, res, next) => {
+    // USE BODY PARSER TO EXTRACT DATA FROM CLIENT
     const { title, content } = req.body;
-    index.createArticle(title, content)
+
+    Article.create(title, content)
         .then(res.json({ success: true, msg: 'Article Created' }))
         .catch(err => res.json({ err }));
 });
 
 // UPDATE ARTICLE
-router.put('/updateArticle/:id', (req, res, next) => {
+router.put('/update/article/:id', (req, res, next) => {
+    // USE BODY PARSER TO EXTRACT DATA FROM CLIENT
     const { title, content } = req.body;
+    // ID OF ARTICLE TO UPDATE
     let id = req.params.id;
 
-    index.updateArticle(req.body.title, req.body.content, id)
+    Article.update(title, content, id)
         .then(res.json({ success: true, msg: 'Article Updated' }))
         .catch(err => res.json({ err }));
 });
 
 // DELETE ARTICLE
-router.delete('/deleteArticle/:id', (req, res, next) => {
+router.delete('/delete/article/:id', (req, res, next) => {
     let id = req.params.id;
 
-    index.deleteArticle(id)
+    Article.delete(id)
         .then(res.json({ success: true, msg: 'Article Deleted' }))
         .catch(err => res.json({ err }));
 });
 
+
 module.exports = router;
 ```
 
-### models/index.js
-Model handles any interaction with the database, then exports the data to the controller to render a view.
+## models/article.js
+Model handles any interaction with the database, then returns the data to the controller to render a view.
 
 ```javascript
-// REQUIRE CONFIG FILE TO INTERACT WITH DATABASE
 const db = require('../config/config');
 
+// EMPTY OBJECT
+// USED FOR EXPORTING THE FUNCTIONS BELOW
+const Article = {};
+
 // CREATE ARTICLE
-function createArticle(title, content){
-    return db.none(`INSERT into articles(title, content)`
-                    + `VALUES($1, $2)`, [title, content]);
+Article.create = (title, content) => {
+    return db.none(`INSERT into articles(title, content)` + `VALUES($1, $2)`, [title, content]);
 }
 
-// READ (GET) ARTICLES
-function getAllArticles(){
+// GET ALL ARTICLES
+Article.get = () => {
     return db.any('SELECT * FROM articles');
 }
 
-// UPDATE
-function updateArticle(title, content, articleID){
+// UPDATE AN ARTICLE
+Article.update = (title, content, articleID) => {
     return db.none(`UPDATE articles SET title = $1, content = $2 WHERE id = $3`, [title, content, articleID]);
 }
 
-// DELETE
-function deleteArticle(articleID){
+// DELETE AN ARTICLE
+Article.delete = articleID => {
     return db.none(`DELETE from articles WHERE id = $1`, articleID);
 }
 
-module.exports = {
-    createArticle, // CREATE
-    getAllArticles, // READ
-    updateArticle, // UPDATE
-    deleteArticle // DELETE
-}
+module.exports = Article;
 ```
 
-### Documentation
+### DOCUMENTATION
 1. pg-promise: https://github.com/vitaly-t/pg-promise
 2. body-parser: https://github.com/expressjs/body-parser
 3. cors: https://github.com/expressjs/cors
+
+### DOWNLOAD PROJECT & INSTALL
+1. Git clone this project
+2. Open up Terminal or Command line
+3. Navigate to the directory where the project was cloned to
+4. Run this command: psql -f ../config/db/schema.sql
+5. This command will create a PostgreSQL database along with the tables
+6. Setup environment variables:
+    * Create .env file in your project root with these two variables
+```
+DATABASE_URL=postgres://localhost:5432/mvc_app
+```
+7. To run the application, you need to install the dependencies, run this command: npm install --save
+8. To start the application, run this command: npm start
+9. The application will run at: localhost:3000, if that port is already in use, run this command: PORT=1738 npm start
+10. This command will start the server at: localhost:1738

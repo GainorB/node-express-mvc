@@ -1,5 +1,4 @@
 require('dotenv').config(); // SUPPORT .ENV FILES
-const cors = require('cors');
 const express = require('express'); // BRING IN EXPRESS
 const app = express(); // INITILIZE APP
 const path = require('path');
@@ -30,8 +29,11 @@ app.all('/*', (req, res, next) => {
     next();
 });
 
+// SECURITY
+app.disable('x-powered-by');
+
 // CONTROLLERS
-app.use('/', require('./controllers/indexController'));
+app.use('/', require('./controllers/articlesController')); // ARTICLES CONTROLLER
 
 /*
 * START SERVER
@@ -45,13 +47,6 @@ server.listen(port);
 
 // LOG WHICH PORT THE SERVER IS RUNNING ON
 console.log('Server listening on port ' + port);
-
-// CATCH 404 AND FORWARD TO ERROR HANDLER
-app.use((req, res, next) => {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
-});
 
 // ERROR HANDLER
 app.use((err, req, res, next) => {
