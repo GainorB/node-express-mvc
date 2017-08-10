@@ -56,6 +56,7 @@ const express = require('express'); // BRING IN EXPRESS
 const app = express(); // INITILIZE APP
 const path = require('path');
 const bodyParser = require('body-parser'); 
+const articles = require('./routes/articlesRoutes'); // ARTICLES ROUTES
 
 const http = require('http'); // CORE MODULE, USED TO CREATE THE HTTP SERVER
 const server = http.createServer(app); // CREATE HTTP SERVER USING APP
@@ -85,8 +86,8 @@ app.all('/*', (req, res, next) => {
 // SECURITY
 app.disable('x-powered-by');
 
-// CONTROLLERS
-app.use('/', require('./controllers/articlesController')); // ARTICLES CONTROLLER
+// ROUTES
+articles(app); // ARTICLES ROUTES
 
 /*
 * START SERVER
@@ -109,6 +110,21 @@ app.use((err, req, res, next) => {
 
 // EXPORT APP
 module.exports = app;
+```
+
+## routes/articlesRoutes.js
+Route handlers
+
+```javascript
+// REQUIRE CONTROLLER
+const ArticlesController = require('../controllers/articlesController');
+
+module.exports = (app) => {
+    app.get('/', ArticlesController.getArticles);
+    app.post('/new', ArticlesController.createArticle);
+    app.put('/update/article/:id', ArticlesController.updateArticle);
+    app.delete('/delete/article/:id', ArticlesController.deleteArticle);
+}
 ```
 
 ## config/config.js
@@ -138,54 +154,52 @@ module.exports = db;
 Controller imports a model and then processes the returned data to render a view.
 
 ```javascript
-const express = require('express');
-const router = express.Router();
-
 // REQUIRE MODEL
 const Article = require('../models/article.js');
 
-// GET ALL ARTICLES
-router.get('/', (req, res, next) => {
-    Article.get()
-        //.then(data => console.log(data))
-        //.then(data => res.render('index', { data }))
-        .then(data => res.status(200).json({ title: 'Retreived all Articles', success: true, data }))
-        .catch(err => res.status(400).json({ err }));
-});
+module.exports = {
 
-// CREATE ARTICLE
-router.post('/new', (req, res, next) => {
-    // USE BODY PARSER TO EXTRACT DATA FROM CLIENT
-    const { title, content } = req.body;
+    // GET ALL ARTICLES
+    getArticles(req, res, next){
+        Article.get()
+            //.then(data => console.log(data))
+            //.then(data => res.render('index', { data }))
+            .then(data => res.status(200).json({ title: 'Retreived all Articles', success: true, data }))
+            .catch(err => res.status(400).json({ err }));
+    },
 
-    Article.create(title, content)
-        .then(res.status(201).json({ success: true, msg: 'Article Created' }))
-        .catch(err => res.status(400).json({ err }));
-});
+    // CREATE ARTICLE
+    createArticle(req, res, next){
+        // USE BODY PARSER TO EXTRACT DATA FROM CLIENT
+        const { title, content } = req.body;
 
-// UPDATE ARTICLE
-router.put('/update/article/:id', (req, res, next) => {
-    // USE BODY PARSER TO EXTRACT DATA FROM CLIENT
-    const { title, content } = req.body;
-    // ID OF ARTICLE TO UPDATE
-    let id = req.params.id;
+        Article.create(title, content)
+            .then(res.status(201).json({ success: true, msg: 'Article Created' }))
+            .catch(err => res.status(400).json({ err }));
+    },
 
-    Article.update(title, content, id)
-        .then(res.status(200).json({ success: true, msg: 'Article Updated' }))
-        .catch(err => res.status(400).json({ err }));
-});
+    // UPDATE ARTICLE
+    updateArticle(req, res, next){
+        // USE BODY PARSER TO EXTRACT DATA FROM CLIENT
+        const { title, content } = req.body;
+        // ID OF ARTICLE TO UPDATE
+        let id = req.params.id;
 
-// DELETE ARTICLE
-router.delete('/delete/article/:id', (req, res, next) => {
-    let id = req.params.id;
+        Article.update(title, content, id)
+            .then(res.status(200).json({ success: true, msg: 'Article Updated' }))
+            .catch(err => res.status(400).json({ err }));
+    },
 
-    Article.delete(id)
-        .then(res.status(200).json({ success: true, msg: 'Article Deleted' }))
-        .catch(err => res.status(400).json({ err }));
-});
+    // DELETE ARTICLE
+    deleteArticle(req, res, next){
+        let id = req.params.id;
 
-
-module.exports = router;
+        Article.delete(id)
+            .then(res.status(200).json({ success: true, msg: 'Article Deleted' }))
+            .catch(err => res.status(400).json({ err }));
+    }
+        
+}
 ```
 
 ## models/article.js

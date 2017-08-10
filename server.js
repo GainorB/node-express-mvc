@@ -3,6 +3,7 @@ const express = require('express'); // BRING IN EXPRESS
 const app = express(); // INITILIZE APP
 const path = require('path');
 const bodyParser = require('body-parser'); 
+const articles = require('./routes/articlesRoutes'); // ARTICLES ROUTES
 
 const http = require('http'); // CORE MODULE, USED TO CREATE THE HTTP SERVER
 const server = http.createServer(app); // CREATE HTTP SERVER USING APP
@@ -32,8 +33,8 @@ app.all('/*', (req, res, next) => {
 // SECURITY
 app.disable('x-powered-by');
 
-// CONTROLLERS
-app.use('/', require('./controllers/articlesController')); // ARTICLES CONTROLLER
+// ROUTES
+articles(app); // ARTICLES ROUTES
 
 /*
 * START SERVER
