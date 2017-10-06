@@ -2,7 +2,7 @@ require('dotenv').config(); // SUPPORT .ENV FILES
 const express = require('express'); // BRING IN EXPRESS
 const app = express(); // INITILIZE APP
 const path = require('path');
-const bodyParser = require('body-parser'); 
+const bodyParser = require('body-parser');
 const articles = require('./routes/articlesRoutes'); // ARTICLES ROUTES
 
 const http = require('http'); // CORE MODULE, USED TO CREATE THE HTTP SERVER
@@ -24,10 +24,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // CORS
 app.all('/*', (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
 });
 
 // SECURITY
@@ -51,8 +51,8 @@ console.log('Server listening on port ' + port);
 
 // ERROR HANDLER
 app.use((err, req, res, next) => {
-    console.log(err);
-    res.status(err.status || 500).send(err.stack);
+  console.log(err);
+  res.status(err.status || 500).send(err.stack);
 });
 
 // EXPORT APP
